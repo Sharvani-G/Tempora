@@ -1,0 +1,45 @@
+/* Many developers reset default margins at the start:
+
+* {
+   margin: 0;
+   padding: 0;
+   box-sizing: border-box;
+}
+
+This avoids hidden spacing issues like this. */
+
+body{
+ background-color: black;
+ color: rgb(245, 234, 215);
+}
+
+.container{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    gap:5px;
+    height:80vh;
+   
+}
+
+.container>*{
+    border: 1px solid white;
+    width: 15vw;
+    height: 50vh;
+ border-radius: 10px;
+}
+
+#modal{
+    display: none;
+}
+
+.time p{
+    
+    margin: 0;
+    text-align: center;
+    font-size: 15rem;
+    font-family: "Antonio", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Antonio:wght@100..700&display=swap" rel="stylesheet">
+
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css"></link>
+</head>
+<body>
+
+    <h1>Tempora the pomo</h1>
+    <p>Tempora the pomo is a simple pomodoro timer built with HTML, CSS, and JavaScript. It helps you manage your time effectively by breaking your work into intervals, traditionally 25 minutes in length, separated by short breaks.</p>
+    
+<button onclick="window.dialog.show();">set time</button>
+
+<dialog id="dialog">
+     <input type="number" min="0" id="hours" placeholder="hours">
+             <input type="number" min="0" max="59" id="minutes" placeholder="minutes">
+ <button class ="Confirm" onclick="window.dialog.close();">Confirm</button>
+</dialog>
+
+<button class="start">start</button>
+<button class="reset">reset</button>
+
+    <div class="container">
+        <div class="time hr1"><p>x</p></div>    
+        <div class="time hr2"><p>x</p></div>    
+        <div class="time m1"><p>x</p></div>    
+        <div class="time m2"><p>x</p></div>    
+    </div>
+<button class="pause">pause</button>
+
+
+
+    <script src="logic.js"></script>
+</body>
+</html>
