@@ -111,24 +111,18 @@ header {
     background: rgba(255, 255, 255, 0.06);
 }
 
-.icon-note,
-.icon-plus,
-.label-add {
+.icon-note, .icon-plus, .label-add {
     position: absolute;
     transition: opacity 0.2s ease, transform 0.2s ease;
     pointer-events: none;
 }
 
-/* Default: note icon visible */
 .icon-note { opacity: 1; transform: scale(1); }
 .icon-plus  { opacity: 0; transform: scale(0.5); font-size: 1.5rem; font-weight: 200; line-height: 1; }
 .label-add  { opacity: 0; font-size: 0.72rem; letter-spacing: 1.5px; }
 
-/* Hover: show label, hide note */
 .music-btn:hover:not(.active) .icon-note { opacity: 0; transform: scale(0.5); }
 .music-btn:hover:not(.active) .label-add { opacity: 1; position: static; }
-
-/* Active (clicked): show + only */
 .music-btn.active .icon-note { opacity: 0; }
 .music-btn.active .label-add { opacity: 0; }
 .music-btn.active .icon-plus { opacity: 1; transform: scale(1); }
@@ -176,37 +170,16 @@ header {
     position: relative;
     overflow: hidden;
     line-height: 1;
-    padding: 0;
     box-shadow: inset 0 -4px 14px rgba(0, 0, 0, 0.4);
-    user-select: none;
 }
 
-/* Split line */
 .digit::after {
     content: '';
     position: absolute;
-    left: 0;
-    top: 50%;
-    width: 100%;
-    height: 1px;
-    background: rgba(0, 0, 0, 0.55);
-    z-index: 2;
+    left: 0; top: 50%; width: 100%; height: 1px;
+    background: rgba(0, 0, 0, 0.55); z-index: 2;
 }
 
-/* Top-half shade for depth */
-.digit::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 50%;
-    background: rgba(0, 0, 0, 0.1);
-    z-index: 1;
-    border-radius: var(--digit-radius) var(--digit-radius) 0 0;
-}
-
-/* Nudge up to compensate for Antonio's descender space */
 .digit span {
     position: relative;
     z-index: 3;
@@ -220,13 +193,12 @@ header {
 }
 
 @keyframes flip {
-    0%   { transform: rotateX(0);      opacity: 1;   }
+    0%   { transform: rotateX(0); opacity: 1; }
     40%  { transform: rotateX(-80deg); opacity: 0.3; }
-    60%  { transform: rotateX(8deg);   opacity: 0.9; }
-    100% { transform: rotateX(0);      opacity: 1;   }
+    60%  { transform: rotateX(8deg); opacity: 0.9; }
+    100% { transform: rotateX(0); opacity: 1; }
 }
 
-/* ── Labels & Separators ── */
 .label {
     font-size: 0.63rem;
     letter-spacing: 5px;
@@ -242,18 +214,12 @@ header {
 }
 
 .sep-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--muted);
+    width: 5px; height: 5px; border-radius: 50%; background: var(--muted);
 }
 
 /* ── Controls ── */
 .controls {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
 }
 
 .btn {
@@ -263,7 +229,6 @@ header {
     padding: 11px 26px;
     border-radius: 8px;
     cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
     font-size: 0.72rem;
     letter-spacing: 2.5px;
     text-transform: uppercase;
@@ -276,24 +241,32 @@ header {
     background: rgba(255, 255, 255, 0.05);
 }
 
-.btn.primary         { border-color: rgba(255, 255, 255, 0.3); color: var(--text); }
-.btn.start:hover     { border-color: #6ee7b7; color: #6ee7b7; }
-.btn.pause:hover     { border-color: #fcd34d; color: #fcd34d; }
-.btn.reset:hover     { border-color: #f87171; color: #f87171; }
-
-/* ── Dialogs ── */
+/* ── Centered Dialog UI ── */
 dialog {
     background: #1a1a1a;
     color: var(--text);
     border: 1px solid var(--border);
     border-radius: 20px;
     padding: 2.2rem 2.5rem;
-    width: min(360px, 90vw);
+    
+    /* Perfect Center Logic */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    width: min(400px, 90vw);
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
+    margin: 0; 
+    display: none; 
+    flex-direction: column;
 }
+
+dialog[open] { display: flex; }
 
 dialog::backdrop {
     background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
 }
 
 dialog h3 {
@@ -303,20 +276,16 @@ dialog h3 {
     text-transform: uppercase;
     margin-bottom: 1.5rem;
     color: var(--muted);
+    text-align: center;
 }
 
+/* ── Internal Dialog Elements ── */
 .input-row {
     display: flex;
     gap: 12px;
     margin-bottom: 1.5rem;
     align-items: center;
     justify-content: center;
-}
-
-.input-row span {
-    font-family: 'Antonio', sans-serif;
-    font-size: 1.8rem;
-    color: var(--muted);
 }
 
 input[type="number"] {
@@ -330,18 +299,21 @@ input[type="number"] {
     font-family: 'Antonio', sans-serif;
     font-size: 1.8rem;
     outline: none;
-    transition: border-color 0.2s;
 }
 
-input[type="number"]:focus { border-color: rgba(255, 255, 255, 0.35); }
-input[type="number"]::-webkit-inner-spin-button { display: none; }
-
-/* ── Music Dialog ── */
-.songs-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+/* ── Music Gallery List ── */
+#songs-container {
+    max-height: 220px;
+    overflow-y: auto;
+    padding-right: 5px;
     margin-bottom: 1rem;
+}
+
+/* Custom Scrollbar */
+#songs-container::-webkit-scrollbar { width: 4px; }
+#songs-container::-webkit-scrollbar-thumb {
+    background: var(--muted);
+    border-radius: 10px;
 }
 
 .track {
@@ -353,30 +325,20 @@ input[type="number"]::-webkit-inner-spin-button { display: none; }
     border: 1px solid var(--border);
     border-radius: 10px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    margin-bottom: 8px;
+    transition: 0.2s;
 }
 
-.track:hover {
-    border-color: rgba(255, 255, 255, 0.18);
+.track.playing {
+    border-color: rgba(255, 255, 255, 0.4);
     background: rgba(255, 255, 255, 0.05);
 }
 
-.track-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--muted);
-    flex-shrink: 0;
-}
+.track.playing .track-icon { color: #6ee7b7; }
 
-.track-info  { flex: 1; }
-.track-name  { font-size: 0.85rem; font-weight: 400; }
-.track-sub   { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+.track-info { flex: 1; }
+.track-name { font-size: 0.85rem; }
+.track-sub  { font-size: 0.7rem; color: var(--muted); }
 
 .upload-area {
     border: 1px dashed rgba(255, 255, 255, 0.12);
@@ -386,84 +348,19 @@ input[type="number"]::-webkit-inner-spin-button { display: none; }
     font-size: 0.75rem;
     color: var(--muted);
     cursor: pointer;
-    margin-bottom: 1.2rem;
-    transition: all 0.2s;
-    letter-spacing: 1px;
+    margin-bottom: 0.8rem;
+    transition: 0.2s;
 }
 
 .upload-area:hover {
     border-color: rgba(255, 255, 255, 0.28);
     color: var(--text);
-    background: rgba(255, 255, 255, 0.03);
 }
 
-/* ══════════════════════════════════════
-   RESPONSIVE BREAKPOINTS
-   ══════════════════════════════════════ */
-
-/* Large tablets / small laptops */
-@media (max-width: 900px) {
-    :root {
-        --digit-w: 100px;
-        --digit-h: 138px;
-        --digit-fs: 6.6rem;
-        --digit-radius: 12px;
-        --card-pad: 2.8rem 2rem;
-        --group-gap: 18px;
-    }
-}
-
-/* Tablets portrait */
+/* ── Responsive ── */
 @media (max-width: 680px) {
     :root {
-        --digit-w: 82px;
-        --digit-h: 114px;
-        --digit-fs: 5.4rem;
-        --digit-radius: 11px;
+        --digit-w: 82px; --digit-h: 114px; --digit-fs: 5.4rem;
         --card-pad: 2.2rem 1.5rem;
-        --group-gap: 14px;
-        --digit-gap: 5px;
-        --sep-gap: 16px;
-        --sep-pb: 14px;
     }
-
-    .wrapper { gap: 1.8rem; }
-    .logo    { font-size: 0.95rem; letter-spacing: 4px; }
-    .label   { font-size: 0.58rem; letter-spacing: 4px; }
-}
-
-/* Phones */
-@media (max-width: 540px) {
-    :root {
-        --digit-w: 68px;
-        --digit-h: 96px;
-        --digit-fs: 4.5rem;
-        --digit-radius: 10px;
-        --card-pad: 1.8rem 1.2rem;
-        --group-gap: 12px;
-        --digit-gap: 4px;
-        --sep-gap: 12px;
-        --sep-pb: 12px;
-    }
-
-    .wrapper        { width: 95%; gap: 1.5rem; }
-    .label          { letter-spacing: 3px; }
-    .btn            { padding: 9px 16px; font-size: 0.65rem; letter-spacing: 2px; }
-    .clock-card     { flex-direction: row !important; }
-}
-
-/* Very small phones */
-@media (max-width: 380px) {
-    :root {
-        --digit-w: 56px;
-        --digit-h: 80px;
-        --digit-fs: 3.6rem;
-        --digit-radius: 8px;
-        --card-pad: 1.4rem 1rem;
-        --group-gap: 10px;
-        --digit-gap: 3px;
-    }
-
-    .sep-dot { width: 4px; height: 4px; }
-    .logo    { letter-spacing: 3px; }
 }

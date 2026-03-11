@@ -2,126 +2,224 @@
    TEMPORA — index.js
    ══════════════════════════════════════ */
 
-// ── Element refs ──────────────────────
-// Current HTML uses <div class="digit hr1"><span>…</span></div>
-let h1 = document.querySelector('.hr1 span');
-let h2 = document.querySelector('.hr2 span');
-let m1 = document.querySelector('.m1 span');
-let m2 = document.querySelector('.m2 span');
+// ── 1. ELEMENT REFERENCES ────────────────
+// Selecting visual digits and control buttons
+const h1 = document.querySelector('.hr1 span');
+const h2 = document.querySelector('.hr2 span');
+const m1 = document.querySelector('.m1 span');
+const m2 = document.querySelector('.m2 span');
 
-let start  = document.querySelector('.start');
-let reset  = document.querySelector('.reset');
-let pause  = document.querySelector('.pause');
+const startBtn = document.querySelector('.start');
+const resetBtn = document.querySelector('.reset');
+const pauseBtn = document.querySelector('.pause');
+const musicBtn = document.getElementById('musicBtn');
 
-// ── State ─────────────────────────────
-let totalsecs  = 0;
-let intervalId = null;
+// ── 2. MUSIC DATA & PLAYLISTS ────────────
+// Static presets (Direct links to open-source MP3s)
+const presets = [
+    { title: "Lofi Study", url: "https://cdn.pixabay.com/download/audio/2026/02/26/audio_a0ca555c0d.mp3?filename=mondamusic-chill-491681.mp3" },
+    { title: "Deep Focus", url: "https://cdn.pixabay.com/download/audio/2026/02/23/audio_9155a8528a.mp3?filename=quietphase-deep-ambient-489703.mp3" },
+    { title: "calm Day", url: "https://cdn.pixabay.com/download/audio/2026/02/19/audio_34037f847d.mp3?filename=mondamusic-relaxing-relax-music-487314.mp3" }
+];
 
-// ── Initial display ───────────────────
-h1.innerHTML = '0';
-h2.innerHTML = '0';
-m1.innerHTML = '2';
-m2.innerHTML = '5';
+// Dynamic playlist: Loaded from LocalStorage and converted back from a String to an Array
+let userPlaylist = JSON.parse(localStorage.getItem('tempora_user_playlist')) || [];
 
-// ── Music Button ──────────────────────
-function handleMusicClick() {
-    document.getElementById('musicBtn').classList.add('active');
-    setTimeout(() => musicDialog.showModal(), 180);
+// ── 3. APPLICATION STATE ─────────────────
+let totalsecs  = 0;       
+let intervalId = null;    
+const currentAudio = document.getElementById('mainAudio'); 
+let currentTrackElement = null; 
+
+// ── 4. INITIALIZATION (LOCAL STORAGE) ───
+// Restore timer progress if user refreshed the page
+const savedTime = localStorage.getItem('savedPomoTime');
+if (savedTime) {
+    totalsecs = parseInt(savedTime);
+    updateDisplayVisuals(Math.floor(totalsecs / 3600), Math.floor((totalsecs % 3600) / 60));
+} else {
+    totalsecs = 1500; // Default 25 min
+    updateDisplayVisuals(0, 25);
 }
 
-musicDialog.addEventListener('close', () => {
-    document.getElementById('musicBtn').classList.remove('active');
-});
+// ── 5. CORE TIMER FUNCTIONS ──────────────
 
-// ── Flip helper ───────────────────────
+// Request/Send browser notifications
+function sendNotification(title, message) {
+    if (Notification.permission === 'granted') {
+        new Notification(title, { body: message });
+    }
+}
+
+// Visual "Flip" animation logic
 function flipDigit(el, val) {
     const s = val.toString();
     if (el.innerHTML !== s) {
         el.parentElement.classList.remove('flip-anim');
-        void el.parentElement.offsetWidth; // reflow to restart animation
+        void el.parentElement.offsetWidth; // Force Reflow to restart animation
         el.innerHTML = s;
         el.parentElement.classList.add('flip-anim');
     }
 }
 
-// ── Timer function (your original logic) ──
+function updateDisplayVisuals(h, m) {
+    flipDigit(h1, Math.floor(h / 10));
+    flipDigit(h2, h % 10);
+    flipDigit(m1, Math.floor(m / 10));
+    flipDigit(m2, m % 10);
+}
+
+// The main loop that runs every second
 function timercont() {
     if (totalsecs <= 0) {
         clearInterval(intervalId);
         intervalId = null;
-        alert('Session completed!');
+        sendNotification('Session Completed!', 'Well done! Time for a break.');
+        setTimeout(() => alert('Session completed!'), 100);
         return;
     }
 
-    totalsecs = totalsecs - 1;
-
-    let hours   = Math.floor(totalsecs / 3600);
-    let minutes = Math.floor((totalsecs % 3600) / 60);
-
-    flipDigit(h1, parseInt(hours / 10));
-    flipDigit(h2, hours % 10);
-    flipDigit(m1, parseInt(minutes / 10));
-    flipDigit(m2, minutes % 10);
+    totalsecs--;
+    updateDisplayVisuals(Math.floor(totalsecs / 3600), Math.floor((totalsecs % 3600) / 60));
 }
 
-// ── Set Time Dialog ───────────────────
+// ── 6. TIMER EVENT LISTENERS ─────────────
+
 function confirmTime() {
-    timeDialog.close();
-
-    const hoursInput   = document.getElementById('hours');
-    const minutesInput = document.getElementById('minutes');
-
-    // hours.value is string — parse to int
-    let hours   = parseInt(hoursInput.value)   || 0;
-    let minutes = parseInt(minutesInput.value) || 0;
-
-    // normalize overflow minutes into hours
-    hours   += Math.floor(minutes / 60);
-    minutes  = minutes % 60;
-
-    totalsecs = (hours * 3600) + (minutes * 60);
-
-    // update display immediately after setting
-    flipDigit(h1, parseInt(hours / 10));
-    flipDigit(h2, hours % 10);
-    flipDigit(m1, parseInt(minutes / 10));
-    flipDigit(m2, minutes % 10);
+    window.timeDialog.close();
+    const hIn = parseInt(document.getElementById('hours').value) || 0;
+    const mIn = parseInt(document.getElementById('minutes').value) || 25;
+    
+    totalsecs = (hIn * 3600) + (mIn * 60);
+    localStorage.setItem('savedPomoTime', totalsecs);
+    updateDisplayVisuals(hIn, mIn % 60);
 }
 
-// ── Start ─────────────────────────────
-start.addEventListener('click', () => {
-    if (intervalId) return;       // already running
-    if (totalsecs <= 0) return;   // nothing set
-    intervalId = setInterval(timercont, 1000);
-});
-
-// ── Pause ─────────────────────────────
-pause.addEventListener('click', () => {
-    clearInterval(intervalId);
-    intervalId = null;
-});
-
-// ── Reset ─────────────────────────────
-reset.addEventListener('click', () => {
+startBtn.addEventListener('click', () => {
+    // Request permission on first user interaction
+    if (Notification.permission === 'default') Notification.requestPermission();
+    if (intervalId || totalsecs <= 0) return;
     
-const audio = new Audio('/sound/end.wav'); 
-  // MP3, WAV, and OGG formats are widely supported
-
-  // Play the sound
-  audio.play()
-  audio.play()
-    .catch(error => {
-      // Handle potential errors, e.g., if the user hasn't interacted with the page yet
-      console.error("Audio playback failed:", error);
-    });
-
-    clearInterval(intervalId);
-    intervalId = null;
-    totalsecs  = 0;
-
-    h1.innerHTML = '0';
-    h2.innerHTML = '0';
-    m1.innerHTML = '0';
-    m2.innerHTML = '0';
+    intervalId = setInterval(timercont, 1000);
+    sendNotification('Timer Started', 'Stay focused!');
 });
 
+pauseBtn.addEventListener('click', () => {
+    if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+        sendNotification('Timer Paused', 'Timer is on hold.');
+    }
+});
+
+resetBtn.addEventListener('click', () => {
+    clearInterval(intervalId);
+    intervalId = null;
+    totalsecs = 0;
+    localStorage.removeItem('savedPomoTime');
+    updateDisplayVisuals(0, 0);
+});
+
+// ── 7. MUSIC MANAGER LOGIC ───────────────
+
+function handleMusicClick() {
+    musicBtn.classList.add('active');
+    setTimeout(() => window.musicDialog.showModal(), 150);
+}
+
+window.musicDialog.addEventListener('close', () => musicBtn.classList.remove('active'));
+
+function showUploadFields() {
+    document.getElementById('uploadArea').style.display = 'none';
+    document.getElementById('addTrackForm').style.display = 'flex';
+}
+
+function hideUploadFields() {
+    document.getElementById('uploadArea').style.display = 'block';
+    document.getElementById('addTrackForm').style.display = 'none';
+}
+
+// Add a web link to the user list
+function addUserTrack() {
+    const titleIn = document.getElementById('userSongTitle');
+    const urlIn = document.getElementById('userSongUrl');
+
+    if (titleIn.value && urlIn.value) {
+        userPlaylist.push({ title: titleIn.value, url: urlIn.value });
+        localStorage.setItem('tempora_user_playlist', JSON.stringify(userPlaylist));
+        renderPlaylist();
+        titleIn.value = ""; urlIn.value = "";
+        hideUploadFields();
+    }
+}
+
+// Rebuilds the UI based on presets and userPlaylist arrays
+function renderPlaylist() {
+    const container = document.getElementById('songs-container');
+    if (!container) return;
+    container.innerHTML = ""; 
+
+    const allSongs = [...presets, ...userPlaylist];
+
+    allSongs.forEach((song, index) => {
+        const isPreset = index < presets.length;
+        const div = document.createElement('div');
+        div.className = "track";
+        
+        // Use a click listener for the whole row to play the song
+        div.onclick = (e) => {
+            if (e.target.tagName !== 'BUTTON') togglePlay(song.url, div);
+        };
+        
+        div.innerHTML = `
+            <div class="track-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <div class="track-info">
+                <div class="track-name">${song.title}</div>
+                <div class="track-sub">${isPreset ? 'Preset' : 'User Track'}</div>
+            </div>
+            ${!isPreset ? `<button class="btn mini" style="color: #f87171; border:none; background:transparent; font-size:1.2rem;" onclick="deleteTrack(${index - presets.length})">×</button>` : ''}
+        `;
+        container.appendChild(div);
+    });
+}
+
+// The core Play/Pause toggle logic
+function togglePlay(url, element) {
+    // Check if the current song is the one being clicked
+    if (currentAudio.src === url || decodeURI(currentAudio.src) === url) {
+        if (currentAudio.paused) {
+            currentAudio.play();
+            element.classList.add('playing');
+        } else {
+            currentAudio.pause();
+            element.classList.remove('playing');
+        }
+    } else {
+        // Switching to a new song
+        if (currentTrackElement) currentTrackElement.classList.remove('playing');
+        currentAudio.src = url;
+        currentAudio.play().catch(e => alert("Please use a direct MP3 link"));
+        currentTrackElement = element;
+        element.classList.add('playing');
+    }
+}
+
+function deleteTrack(userIndex) {
+    userPlaylist.splice(userIndex, 1);
+    localStorage.setItem('tempora_user_playlist', JSON.stringify(userPlaylist));
+    renderPlaylist();
+}
+
+// Handle local file picker via Blob URLs
+function handleLocalFileUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const blobUrl = URL.createObjectURL(file);
+    userPlaylist.push({ title: file.name.replace(/\.[^/.]+$/, ""), url: blobUrl });
+    renderPlaylist();
+}
+
+// Build the playlist for the first time
+renderPlaylist();

@@ -3,21 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tempora</title>
+    <title>Tempora — Minimalist Pomo</title>
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
-    <!-- Styles -->
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- ── Main Layout ── -->
     <div class="wrapper">
-
         <header>
             <span class="logo">Tempora</span>
 
@@ -27,12 +24,11 @@
                         <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
                     </svg>
                 </span>
-                <span class="icon-plus music-add">+</span>
+                <span class="icon-plus">+</span>
                 <span class="label-add">ADD MUSIC</span>
             </button>
         </header>
 
-        <!-- Flip Clock -->
         <div class="clock-card">
             <div class="clock-group">
                 <div class="unit-box">
@@ -56,56 +52,45 @@
             </div>
         </div>
 
-        <!-- Controls -->
         <div class="controls">
             <button class="btn primary" onclick="timeDialog.showModal()">Set Time</button>
-            <button class="btn start"   id="startBtn">Start</button>
-            <button class="btn pause"   id="pauseBtn">Pause</button>
-            <button class="btn reset"   id="resetBtn">Reset</button>
+            <button class="btn start">Start</button>
+            <button class="btn pause">Pause</button>
+            <button class="btn reset">Reset</button>
         </div>
-
     </div>
 
-    <!-- ── Set Time Dialog ── -->
     <dialog id="timeDialog">
         <h3>Set Duration</h3>
         <div class="input-row">
-            <input type="number" id="hours"   min="0"          placeholder="00" value="0">
+            <input type="number" id="hours" min="0" value="0">
             <span>:</span>
-            <input type="number" id="minutes" min="0" max="59" placeholder="00" value="25">
+            <input type="number" id="minutes" min="0" max="59" value="25">
         </div>
-        <button class="btn primary" style="width:100%; text-align:center;" onclick="confirmTime()">Confirm</button>
+        <button class="btn primary" style="width:100%" onclick="confirmTime()">Confirm</button>
     </dialog>
 
-    <!-- ── Music Dialog ── -->
     <dialog id="musicDialog">
-        <h3>Music</h3>
-        <div class="songs-list">
-            <div class="track">
-                <div class="track-icon">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                </div>
-                <div class="track-info">
-                    <div class="track-name">Lo-fi Study Beats</div>
-                    <div class="track-sub">Sample · 3:42</div>
-                </div>
-            </div>
-            <div class="track">
-                <div class="track-icon">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                </div>
-                <div class="track-info">
-                    <div class="track-name">Deep Focus Flow</div>
-                    <div class="track-sub">Sample · 5:10</div>
-                </div>
-            </div>
+        <h3>Music Gallery</h3>
+        
+        <div id="songs-container" class="songs-list"></div>
+
+        <div id="addTrackForm" style="display:none; flex-direction:column; gap:8px; margin-bottom:1rem;">
+            <input type="text" id="userSongTitle" placeholder="Song Name">
+            <input type="text" id="userSongUrl" placeholder="Direct MP3 Link">
+            <button class="btn primary" onclick="addUserTrack()">Add to List</button>
         </div>
-        <div class="upload-area">＋ &nbsp; Upload your own track</div>
-        <button class="btn" style="width:100%; text-align:center;" onclick="musicDialog.close()">Close</button>
+
+        <div class="upload-area" id="uploadArea" onclick="showUploadFields()">＋ &nbsp; Add Web Link</div>
+        <div class="upload-area" onclick="document.getElementById('localFilePicker').click()">📁 &nbsp; Pick Local File</div>
+        
+        <input type="file" id="localFilePicker" accept="audio/*" style="display:none" onchange="handleLocalFileUpload(this)">
+
+        <audio id="mainAudio"></audio>
+        
+        <button class="btn" style="width:100%; margin-top:10px;" onclick="musicDialog.close()">Close</button>
     </dialog>
 
-    <!-- Script -->
     <script src="index.js"></script>
-
 </body>
 </html>
